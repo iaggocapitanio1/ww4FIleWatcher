@@ -43,7 +43,7 @@ def send_file(owner_email: str, project_id: str, file: Union[str, Path], field: 
         return requests.request(method, url, data=payload, files=files, auth=oauth)
 
 
-def get_file_id(owner_email: str, project_id: str, file_name: Union[str, Path], category: Literal['easm'] = 'easm')\
+def get_file_id(owner_email: str, project_id: str, file_name: Union[str, Path], category: Literal['easm'] = 'easm') \
         -> Optional[str]:
     logger.debug(f"received data: \n owner email: {owner_email}\n project_id: {project_id}\n category: {category}")
     url = settings.URL + f"/storages/{category}/"
@@ -55,3 +55,14 @@ def get_file_id(owner_email: str, project_id: str, file_name: Union[str, Path], 
         return response.json().get('results')[0].get('id')
     logger.debug(f"received the response: {response.status_code}")
     logger.debug(f"received the response: {response.text}")
+
+
+def delete_file(pk: str, category: Literal['easm'] = 'easm') -> Optional[requests.Response]:
+    url = settings.URL + f"/storages/{category}/"
+    if pk is not None:
+        url += f"{pk}/"
+    response: requests.Response = requests.request('DELETE', url, auth=oauth)
+    if response.status_code == 204:
+        logger.debug(f"received the response: {response.status_code}")
+        logger.debug(f"received the response: {response.json()}")
+        return response

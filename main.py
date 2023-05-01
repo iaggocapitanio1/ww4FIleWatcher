@@ -50,7 +50,19 @@ class FileHandler(PatternMatchingEventHandler):
         filename = client.validate_path(event.src_path).name
         pk = client.get_file_id(owner_email=email, project_id=project_id, file_name=filename)
         if pk is not None:
-            response = client.send_file(email, project_id, file=event.src_path,  method='PUT', pk=pk)
+            response = client.send_file(email, project_id, file=event.src_path, method='PUT', pk=pk)
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response got: {response.text}")
+
+    def on_deleted(self, event):
+        logger.info(f"Has been deleted: {event.src_path}")
+        logger.info("Trying to delete file ....")
+        email = get_email(event.src_path)
+        project_id = get_project_id(event.src_path)
+        filename = client.validate_path(event.src_path).name
+        pk = client.get_file_id(owner_email=email, project_id=project_id, file_name=filename)
+        if pk is not None:
+            response = client.delete_file(pk=pk)
             logger.info(f"Response status code: {response.status_code}")
             logger.info(f"Response got: {response.text}")
 
