@@ -9,6 +9,11 @@ if DEV:
 
 BASE_DIR = Path(__file__).resolve().parent
 
+
+NUM_WORKER_THREADS = 4
+
+CATEGORY = os.environ.get("CATEGORY", "EASM")
+
 CLIENT_ID = os.environ.get("CLIENT_ID", "")
 
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET", "")
@@ -17,7 +22,7 @@ TOKEN_URL = os.environ.get("TOKEN_URL", "http://woodwork4.ddns.net:3005/oauth2/t
 
 URL = os.environ.get("URL", "http://127.0.0.1:8000/api/v1")
 
-PROJECTS_DIR = os.environ.get("PROJECTS_DIR", "")
+WATCHING_DIR = os.environ.get("WATCHING_DIR", BASE_DIR / './clients')
 
 
 LOGGER = {
@@ -62,7 +67,7 @@ LOGGER = {
         }
     },
     "root": {
-        "level": "INFO",
+        "level": "DEBUG",
         "handlers": [
             "console", "file"
         ],

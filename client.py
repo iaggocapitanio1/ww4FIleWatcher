@@ -27,7 +27,7 @@ def validate_path(path: Union[str, Path]):
 
 
 def send_file(owner_email: str, project_id: str, file: Union[str, Path], field: str = 'file',
-              category: Literal['easm'] = 'easm', method: Literal['POST', 'PUT'] = 'POST', pk: str = None):
+              category: Literal['easm', 'cut-list'] = 'easm', method: Literal['POST', 'PUT'] = 'POST', pk: str = None):
     logger.debug(f"received data: \n owner email: {owner_email}\n project_id: {project_id}\n category: {category}")
     url = settings.URL + f"/storages/{category}/"
     if method == "PUT" and pk is not None:
@@ -49,12 +49,16 @@ def get_file_id(owner_email: str, project_id: str, file_name: Union[str, Path], 
     url = settings.URL + f"/storages/{category}/"
     response = requests.request('GET', url, params=dict(project=project_id, owner__email=owner_email,
                                                         filename=file_name), auth=oauth)
-    if response.status_code == 200:
+    if response.status_code == 400:
+        logger.error(f"received the response: {response.status_code}")
+        logger.error(f"received the response: {response.json()}")
+    elif response.status_code == 200:
         logger.debug(f"received the response: {response.status_code}")
         logger.debug(f"received the response: {response.json()}")
-        return response.json().get('results')[0].get('id')
+        if response.json().get('results'):
+            return response.json().get('results')[0].get('id')
     logger.debug(f"received the response: {response.status_code}")
-    logger.debug(f"received the response: {response.text}")
+    logger.debug(f"received the response: {response.json()}")
 
 
 def delete_file(pk: str, category: Literal['easm'] = 'easm') -> Optional[requests.Response]:
@@ -62,7 +66,9 @@ def delete_file(pk: str, category: Literal['easm'] = 'easm') -> Optional[request
     if pk is not None:
         url += f"{pk}/"
     response: requests.Response = requests.request('DELETE', url, auth=oauth)
-    if response.status_code == 204:
+    if response.status_code == 400:
+        logger.error(f"received the response: {response.status_code}")
+        logger.error(f"received the response: {response.json()}")
+    elif response.status_code == 204:
         logger.debug(f"received the response: {response.status_code}")
-        logger.debug(f"received the response: {response.json()}")
         return response
